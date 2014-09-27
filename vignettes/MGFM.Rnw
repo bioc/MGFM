@@ -1,0 +1,188 @@
+%\VignetteIndexEntry{Using MGFM}
+%\VignetteKeywords{marker genes, microarrays}
+%\VignetteDepends{annotate}
+%\VignettePackage{MGFM}
+%\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=2em}
+%\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=2em}
+%\DefineVerbatimEnvironment{Scode}{Verbatim}{xleftmargin=2em}
+%\fvset{listparameters={\setlength{\topsep}{0pt}}}
+%\renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
+
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+\newcommand{\Rfunarg}[1]{{\textit{#1}}}
+
+\documentclass[10pt,a4paper]{article}
+\usepackage{a4wide}
+\usepackage[utf8]{inputenc} 
+% Change the Sweave path if the TeX engine does not find the file Sweave.sty
+\usepackage{Sweave}
+\usepackage{hyperref}
+\usepackage[labelfont=bf]{caption}
+
+\begin{document}
+
+\title{MGFM: Marker Gene Finder in Microarray gene expression data}
+\author{Khadija El Amrani
+    \footnote{Charité-Universitätsmedizin Berlin, Berlin Brandenburg Center for Regenerative Therapies (BCRT), 13353 Berlin, Germany}
+    \footnote{Package maintainer, Email: \texttt{khadija.el-amrani@charite.de}}
+}
+\date{\today}
+
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+
+Identification of marker genes associated with a specific tissue/cell type is a fundamental challenge in genetic and genomic research. In addition to other genes, marker genes are of great importance for understanding the gene function, the molecular mechanisms underlying complex diseases, and may lead to the development of new drugs. We developed a new bioinformatic tool to predict marker genes from microarray gene expression data sets.\\
+\texttt{MGFM} is a package enabling the detection of marker genes from microarray gene expression data sets.
+
+\section{Requirements}
+The tool expects replicates for each sample type. Using replicates has the advantage of increased precision of gene expression measurements and allows smaller changes to be detected. It is not necessary to use the same number of replicates for all sample types. Normalization is necessary before any analysis to ensure that differences in intensities are indeed due to differential expression, and not to some experimental factors that add systematic biases to the measurements. Hence, for reliable results normalization of data is mandatory. When combining data from different studies, other procedures should be applied to adjust for batch effects.
+
+
+
+%\newpage
+\section{Contents of the package}
+
+The \texttt{MGFM} package contains the following objects:
+<<>>=
+library("MGFM")
+ls("package:MGFM")
+@
+The function \texttt{getMarkerGenes()} is the intended user-level interface, and \texttt{ds2.mat} is a normalized example data set that is used for demonstration.
+
+
+
+\subsection{\texttt{getMarkerGenes}}
+
+\texttt{getMarkerGenes()} is the main function and it returns a list of marker genes associated with each given sample type.
+
+\subsubsection{Parameter Settings}
+\label{subsec:Input}
+\begin{enumerate}
+%   \item \textit{\textbf{data.mat}}: the microarray data matrix with probe sets corresponding to rows and samples corresponding to columns.
+    \item \textit{data.mat}: The microarray expression data in matrix format with probe sets corresponding to rows and samples corresponding to columns. Please note that replicate samples should have the same label.
+    \item \textit{samples2compare} (optional): A character vector with the sample names to be compared (e.g.
+c("liver", "lung", "brain")). By default all samples are used.
+    \item \textit{annotate} (optional): A boolean value. If TRUE the gene symbol and the entrez gene id are shown. Default is TRUE. For mapping between microarray probe sets and genes, Bioconductor annotation packages (ChipDb) are used.
+    %\item \textit{getGeneSymbols}: If TRUE the corresponding genes to the selected probe sets are displayed. Default is FALSE.
+    \item \textit{chip}: Chip name.%s named after their respective platforms
+    \item \textit{score.cutoff} (optional): It can take values in the interval [0,1]. This value is used to filter the markers according to the  specificity score. The default value is 1 (no filtering) %s named after their respective platforms
+\end{enumerate}
+\subsubsection{Output}
+The function \Rfunction{getMarkerGenes()} returns a list as output. The entries of the result list contain the markers that are associated with each given sample type. For each marker the probe set, the gene symbol, the entrez gene id and the corresponding specificity score are shown in this order.
+\subsection{\texttt{getHtmlpage}}
+\texttt{getHtmlpage()} is a function to build HTML pages to show marker genes as tables with one row per marker gene, with links to Affymetrix, GenBank and Entrez Gene. 
+\section{Example data}
+\texttt{ds1.mat}: is a microarray gene expression data set derived from 5 tissue types (lung, liver, heart atrium, kidney cortex, and midbrain) from the Serie GSE3526 \cite{Roth2006a} from the Gene Expression Omnibus (GEO) database \cite{Edgar2002}. Each tissue type is represented by 3 replicates. The following samples are used: GSM80699, GSM80700, GSM80701, GSM80654, GSM80655, GSM80656, GSM80686, GSM80687, GSM80688, GSM80728, GSM80729, GSM80730, GSM80707, GSM80710 and GSM80712.
+
+\texttt{ds2.mat}: is a microarray expression data set derived from 5 tissue types (lung, liver, heart, kidney, and brain) from two GEO Series GSE1133 \cite{Su2004a} and GSE2361 \cite{Ge2005a}. Each tissue type is represented by 3 replicates. The following samples are used: GSM44702, GSM18953, GSM18954, GSM44704, GSM18949, GSM18950, GSM44690, GSM18921, GSM18922, GSM44675, GSM18955, GSM18956, GSM44671, GSM18951 and GSM18952.
+<<echo=false>>=
+options(width=60)
+@
+<<>>=
+data("ds2.mat")
+dim(ds2.mat)
+colnames(ds2.mat)
+@
+\texttt{ds3.mat}: is a microarray gene expression data set derived from 4 tissue types (lung, liver, heart, and kidney) from the GEO DataSet GDS596. Each tissue type is represented by 2 replicates. The following samples are used: GSM18953, GSM18954, GSM18949, GSM18950, GSM18951, GSM18952, GSM18955, GSM18956.\\
+Since the size of the package submitted to Bioconductor is limited to 4MB, only the data matrix termed ds2.mat is included in the package. The other two data sets are available from GEO website.
+
+\section{Hierachical clustering}
+To evaluate the similarity of the samples, hierarchical clustering based on the expression values was performed using the R function hclust (using the Euclidian distance and the average linkage as clustering method). Figure \ref{fig:dendrogram1} shows the clustering dendrogram of the samples in data set 1. The horizontal axis gives the distance between the clusters. As expected, all replicate samples of a tissue type are clustered together. Figure \ref{fig:dendrogram2_nonorm} shows the clustering dendrogram of samples of data set 2. The samples from the two studies are labeled with 1133 or 2361 according to GSE1133 or GSE2361, respectively. The samples of each study are clustered together. Hence, further normalization of the data is necessary. Figure \ref{fig:dendrogram2} shows the clustering dendrogram after comBat normalization. As illustrated the differences are removed and the samples of each tissue type cluster together.
+%\SweaveOpts{width=2,height=2}
+\begin{figure}[h]
+  \centering
+        \includegraphics{fig/clust_dendrogram1.pdf}
+    \caption{Hierarchical clustering of samples of data set 1 based on their gene expression values. Groups of samples of a tissue type are colored identically.}
+        \label{fig:dendrogram1}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+    \includegraphics{fig/clust_dendrogram2_no_combat_norm.pdf}
+    \caption{Hierarchical clustering of samples of data set 2 based on their gene expression values without ComBat normalization. Groups of samples of a tissue type are colored identically.}
+        \label{fig:dendrogram2_nonorm}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+    \includegraphics{fig/clust_dendrogram2.pdf}
+    \caption{Hierarchical clustering of samples of data set 2 based on their gene expression values after ComBat normalization. Groups of samples of a tissue type are colored identically.}
+        \label{fig:dendrogram2}
+\end{figure}
+\section{Normalization}
+The function \Rfunction{justRMA()} (robust multi-array average) from the R package \Rpackage{affy} \cite{Irizarry2002} was used for background correction, normalization, and summarization of the AffyBatch probe-level data for data set 1 and 2.  In addition, data set 2 was normalized using ComBat (Combating Batch Effects When Combining Batches of Gene Expression Microarray Data) method \cite{Johnson2007} from the R-package \Rpackage{sva} in order to remove batch effects. Please note that all samples of a study were considered by the normalization. The samples were selected after normalization.
+
+\section{Marker search}
+To use the package, we should load it first.
+<<>>=
+  library(MGFM)
+@
+
+<<DS1>>=
+data("ds2.mat")
+require(hgu133a.db)
+marker.list2 <- getMarkerGenes(ds2.mat, samples2compare="all", annotate=TRUE,  chip="hgu133a",score.cutoff=1)
+names(marker.list2)
+# show the first 20 markers of liver
+marker.list2[["liver_markers"]][1:20]
+@
+
+
+<<DS2>>=
+data("ds2.mat")
+# If no annotation (mapping of probe sets to genes) is desired, no chip name is needed.
+marker.list2 <- getMarkerGenes(ds2.mat, samples2compare="all", annotate=FALSE, score.cutoff=1)
+names(marker.list2)
+# show the first 20 markers of lung
+marker.list2[["lung_markers"]][1:20]
+@
+
+\section{MGFM algorithm details}
+Marker genes are identified as follows:
+\begin{enumerate}
+\item \textbf{Sort of expression values for each probe set:} In this step the
+expression values are sorted in decreasing order.
+%\item \textbf{Identification of cut-points}:
+\item \textbf{Marker selection}:
+A probe set is a potential candidate marker of a sample type if the highest expression values represent all replicates of this sample type. We consider a cut-point as the position in the sorted expression vector that segregates different sample types. For marker selection we consider two cut-points. The first cut-point segregates the replicates of the sample type with the highest expression values from the rest of the samples. The second cut-point is set at the first position in which a segregation of the different sample types is possible. If no such cut-point is found, the cut-point is set at the end of the sorted expression vector. 
+
+\item \textbf{Calculation of mean expression values}: Each cut-point segregates elements of sample types into two distinct sample-blocks. For each probe set, the expression levels of the two sample-blocks are summarized as the mean of expression values of the samples in these blocks.
+
+
+\item \textbf{Score the probeset}: For scoring the probe set the first cut-point is relevant. The score is defined as the ratio of the second and first value in the vector of mean expression values of a probe set. This score is used to rank the markers according to their specificity. The score values range from 0 to 1. Values near 0 would indicate high specificity and large values closer to 1 would indicate low specificity. 
+
+This approach of marker selection is strict, since 
+a probeset is not considered as marker if the first highest expression values correspond to more than one type of samples. Using this method, markers that are associated with more than one type of samples will be missed.
+
+\end{enumerate}
+
+\section{Conclusion}
+The development of this tool was motivated by the desire to provide a software package with a fast runtime that enables the user to get marker genes associated with a set of samples of interest. A further objective of this tool was to enable the user to modify the set of samples of interest by adding or removing samples in a simple way. \\
+In summary, the main contribution of the application presented herein are:
+i) The application has a running time of some seconds per analysis. This is achieved by sorting the gene expression values instead of using gene differential expression.
+ii) The tool offers the user the possibility to modify the set of samples by easily removing or adding new samples.
+
+
+
+
+
+\section{R sessionInfo}
+
+The results in this file were generated using the following packages:
+
+<<sessionInfo>>=
+sessionInfo()
+@
+\nocite{Team2007}
+\bibliographystyle{unsrt}
+\bibliography{references}
+
+\end{document}
+
+
