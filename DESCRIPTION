@@ -1,7 +1,7 @@
 Package: MGFM
 Type: Package
 Title: Marker Gene Finder in Microarray gene expression data
-Version: 1.6.0
+Version: 1.7.0
 Date: 2014-09-21
 Author: Khadija El Amrani
 Maintainer: Khadija El Amrani <khadija.el-amrani@charite.de>
