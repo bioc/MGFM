@@ -1,7 +1,7 @@
 .checkIfPkgInstalled <- function(pkg) {
     if (!suppressWarnings(require(pkg, character.only = TRUE, quietly = TRUE))) {
         stop("'", pkg, "' package is not currently installed.\n", "  You first need to install it, which you can do with:\n", 
-            "      library(BiocInstaller)\n", "      biocLite(\"", pkg, "\")")
+            "      library(BiocManager)\n", "      BiocManager::install(\"", pkg, "\")")
     }
 }
 
